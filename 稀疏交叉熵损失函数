@@ -1,0 +1,15 @@
+tf.nn.sparse_softmax_cross_entropy_with_logits()的使用：
+起因：我使用了该函数来计算分类器的loss，该函数有两个入参，logits和labels，我将分类网络最后一层的输出（最后一层为flatten fully connected()）直接作为了logits的输入，
+labels的shape：(batchsize,) ,计算loss时代码没有报任何的错误，甚至loss收敛情况很好，但在我观察训练精度时，发现指标简直惨不忍睹，为什么我的各项loss情况都很好，但分类精度这么低？
+结果：
+在查询该函数的使用方法时，我发现不同文章对logits的shape要求出现了不一致
+有的是
+logits 必须具有shape [batch_size, num_classes] 并且 dtype (float32 or float64)
+labels 必须具有shape [batch_size]，并且 dtype int64
+有的是
+logits和labels的shape和类型必须保持一致
+在我的盲试下
+在分类器中添加以下代码转化为[batch_size, num_classes]：
+flatten_layer = tf.layers.Flatten()(y)
+label = tf.layers.Dense(num_classes, activation="softmax")(flatten_layer)
+得到的label才是我们想要的logits
